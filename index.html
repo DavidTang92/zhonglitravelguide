@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中壢旅遊指南｜以火車站為起點，好玩・好吃・好逛・交通全攻略</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --ink:#1E2A38;
+    --ink-soft:#33455A;
+    --paper:#FBF2DE;
+    --paper-deep:#F1E3C2;
+    --ember:#D9481F;
+    --ember-dark:#A83415;
+    --ember-bg:rgba(217,72,31,0.10);
+    --jade:#2F6F5E;
+    --jade-dark:#1F4E42;
+    --jade-bg:rgba(47,111,94,0.10);
+    --gold:#B8862A;
+    --gold-dark:#8C6519;
+    --gold-bg:rgba(184,134,42,0.12);
+    --slate:#5B6472;
+    --line:rgba(30,42,56,0.14);
+    --font-display:'Noto Serif TC', serif;
+    --font-body:'Noto Sans TC', sans-serif;
+    --maxw:1040px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display); margin:0; color:var(--ink);}
+  p{margin:0;}
+  a{color:inherit;}
+  ul{margin:0; padding:0; list-style:none;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  :focus-visible{outline:2px solid var(--ember); outline-offset:3px;}
+
+  /* ---------- NAV ---------- */
+  .site-nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(251,242,222,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .site-nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding-top:14px; padding-bottom:14px;
+    overflow-x:auto;
+  }
+  .brand{
+    font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+    white-space:nowrap; letter-spacing:0.02em;
+  }
+  .brand small{
+    display:block; font-family:var(--font-body); font-weight:400;
+    font-size:0.68rem; color:var(--slate); letter-spacing:0.08em; margin-top:2px;
+  }
+  .nav-links{display:flex; gap:24px; white-space:nowrap;}
+  .nav-links a{
+    font-size:0.9rem; font-weight:500; text-decoration:none; color:var(--ink-soft);
+    padding-bottom:4px; border-bottom:2px solid transparent; transition:border-color .18s ease, color .18s ease;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{border-color:var(--ember); color:var(--ink);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:var(--ink); color:var(--paper); position:relative; overflow:hidden;
+  }
+  .hero .wrap{padding-top:64px; padding-bottom:0; position:relative; z-index:2;}
+  .hero h1{
+    font-size:clamp(2.1rem, 5vw, 3.4rem); font-weight:900; line-height:1.28;
+    max-width:15ch;
+  }
+  .hero-sub{
+    margin-top:22px; max-width:56ch; font-size:1.05rem; color:rgba(251,242,222,0.82);
+  }
+  .hero-stats{
+    display:flex; gap:0; margin-top:44px; flex-wrap:wrap;
+  }
+  .hero-stats div{
+    padding:0 32px 0 0; margin-right:32px; border-right:1px solid rgba(251,242,222,0.22);
+  }
+  .hero-stats div:last-child{border-right:none;}
+  .hero-stats strong{
+    display:block; font-family:var(--font-display); font-size:2rem; font-weight:700;
+  }
+  .hero-stats span{font-size:0.82rem; color:rgba(251,242,222,0.7);}
+  .hero-stats .n1{color:var(--ember);}
+  .hero-stats .n2{color:#E8A23F;}
+  .hero-stats .n3{color:#6FA893;}
+
+  .skyline{display:block; width:100%; height:auto; margin-top:46px;}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero h1, .hero-sub, .hero-stats{
+      animation:rise .7s ease both;
+    }
+    .hero-sub{animation-delay:.08s;}
+    .hero-stats{animation-delay:.16s;}
+    @keyframes rise{
+      from{opacity:0; transform:translateY(10px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  .section{padding:76px 0; border-bottom:1px solid var(--line);}
+  .section-head{max-width:64ch; margin-bottom:44px;}
+  .section-tag{
+    display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700;
+    color:var(--accent-dark); margin-bottom:14px;
+  }
+  .section-tag .dot{width:8px; height:8px; background:var(--accent); border-radius:1px; display:inline-block;}
+  .section h2{font-size:clamp(1.5rem,3vw,2rem); font-weight:700;}
+  .section-head p{margin-top:14px; color:var(--slate); font-size:1rem; max-width:60ch;}
+
+  #station{--accent:var(--ink-soft); --accent-dark:var(--ink);}
+  #play{--accent:var(--jade); --accent-dark:var(--jade-dark);}
+  #eat{--accent:var(--ember); --accent-dark:var(--ember-dark);}
+  #shop{--accent:var(--gold); --accent-dark:var(--gold-dark);}
+  #itinerary{--accent:var(--ember); --accent-dark:var(--ember-dark);}
+
+  /* ---------- TAGS ---------- */
+  .tag{
+    display:inline-block; font-size:0.76rem; font-weight:700; padding:3px 10px;
+    border-radius:2px; white-space:nowrap;
+  }
+  .tag-jade{background:var(--jade-bg); color:var(--jade-dark); border:1px solid rgba(47,111,94,0.35);}
+  .tag-ember{background:var(--ember-bg); color:var(--ember-dark); border:1px solid rgba(217,72,31,0.32);}
+  .tag-gold{background:var(--gold-bg); color:var(--gold-dark); border:1px solid rgba(184,134,42,0.35);}
+  .tag-far{background:rgba(30,42,56,0.08); color:var(--ink-soft); border:1px solid rgba(30,42,56,0.22);}
+
+  .station-badge{
+    display:inline-flex; align-items:center; font-family:var(--font-body); font-weight:700;
+    font-size:0.72rem; background:var(--ink); color:var(--paper); padding:1px 6px;
+    border-radius:2px; letter-spacing:0.02em; margin-right:2px;
+  }
+
+  .addr-link{
+    color:inherit; text-decoration:underline; text-decoration-color:rgba(30,42,56,0.35);
+    text-underline-offset:3px; transition:color .15s ease, text-decoration-color .15s ease;
+  }
+  .addr-link:hover, .addr-link:focus-visible{color:var(--ink); text-decoration-color:var(--ink);}
+  .hours-note{
+    background:rgba(217,72,31,0.07); border:1px dashed rgba(217,72,31,0.4);
+    padding:16px 20px; font-size:0.9rem; color:var(--ink-soft); margin-bottom:24px;
+  }
+  .hours-note strong{color:var(--ember-dark);}
+
+  /* ---------- MAP ---------- */
+  .map-intro{margin-bottom:16px; color:var(--ink-soft); font-size:0.94rem; max-width:64ch;}
+  .map-wrap{
+    border:1px solid var(--line); margin-bottom:14px; position:relative;
+    background:var(--paper-deep);
+  }
+  #zhongli-map{height:460px; width:100%; background:var(--paper-deep);}
+  .map-wrap.is-loading::after{
+    content:"地圖載入中…"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:0.9rem; color:var(--slate); pointer-events:none;
+  }
+  .leaflet-popup-content-wrapper{border-radius:2px; font-family:var(--font-body);}
+  .leaflet-popup-content{margin:10px 14px; font-size:0.85rem; color:var(--ink); line-height:1.5;}
+  .leaflet-popup-content strong{font-family:var(--font-display); font-size:0.95rem;}
+  .map-legend{
+    display:flex; flex-wrap:wrap; gap:10px 22px; margin-bottom:36px; font-size:0.84rem; color:var(--ink-soft);
+  }
+  .map-legend span{display:inline-flex; align-items:center; gap:7px;}
+  .map-legend .dot{width:14px; height:14px; border-radius:50%; display:inline-block; flex-shrink:0;}
+  .map-legend .dot.station{background:var(--ink); border:2px solid var(--paper); box-shadow:0 0 0 1px var(--ink);}
+  .map-legend .dot.play{background:var(--jade);}
+  .map-legend .dot.eat{background:var(--ember);}
+  .map-legend .dot.shop{background:var(--gold);}
+  .map-legend .dot.far{background:var(--paper-deep); border:2px dashed var(--ink-soft);}
+
+  /* ---------- SPOT LIST ---------- */
+  .spot{
+    display:flex; gap:22px; padding:26px 0; border-bottom:1px solid var(--line);
+    border-left:3px solid var(--accent); padding-left:22px;
+  }
+  .spot:last-child{border-bottom:none;}
+  .spot-body{flex:1; min-width:0;}
+  .spot-head{
+    display:flex; align-items:baseline; flex-wrap:wrap; gap:10px 14px; margin-bottom:10px;
+  }
+  .spot-head h3{font-size:1.15rem; font-weight:700;}
+  .spot-meta{margin-bottom:12px;}
+  .spot-meta li{
+    display:flex; align-items:flex-start; gap:8px; font-size:0.88rem; color:var(--slate);
+    margin-bottom:5px;
+  }
+  .spot-meta li.route{color:var(--ink-soft); font-weight:500;}
+  .spot-meta svg{flex-shrink:0; margin-top:3px; width:14px; height:14px; stroke:var(--slate); fill:none;}
+  .spot-meta li.route svg{stroke:var(--accent-dark);}
+  .spot-body p.desc{color:var(--ink-soft); font-size:0.96rem; max-width:66ch;}
+
+  /* ---------- FEATURE BLOCK ---------- */
+  .feature{
+    background:var(--paper-deep); border:1px solid var(--line); border-left:4px solid var(--accent);
+    padding:26px 26px; margin-bottom:22px;
+  }
+  .feature .spot-head h3{font-size:1.3rem;}
+  .menu-list{margin-top:14px; display:flex; flex-wrap:wrap; gap:0;}
+  .menu-list span{
+    font-size:0.9rem; color:var(--ink-soft); font-weight:500;
+  }
+  .menu-list span:not(:last-child)::after{content:"・"; color:var(--accent); margin:0 8px;}
+
+  .subgroup-intro{
+    margin:8px 0 18px; padding:16px 20px; background:rgba(47,111,94,0.06);
+    border:1px dashed rgba(47,111,94,0.4); font-size:0.92rem; color:var(--ink-soft);
+  }
+  .subgroup-intro strong{color:var(--jade-dark); font-family:var(--font-display); font-size:1.02rem; display:block; margin-bottom:6px;}
+
+  /* ---------- TRANSPORT / STATION COLUMNS ---------- */
+  .frontback{
+    display:grid; grid-template-columns:1fr 1fr; gap:0; margin-bottom:36px;
+    border:1px solid var(--line);
+  }
+  .frontback div{padding:20px 24px;}
+  .frontback div:first-child{border-right:1px solid var(--line);}
+  .frontback h4{font-size:1rem; margin-bottom:8px;}
+  .frontback p{font-size:0.9rem; color:var(--slate);}
+
+  .transport-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-bottom:36px;
+  }
+  .transport-col{
+    padding:22px 22px 22px 0; border-top:3px solid var(--accent);
+  }
+  .transport-col + .transport-col{padding-left:22px;}
+  .transport-col h3{font-size:1.05rem; margin-bottom:6px;}
+  .transport-col .station-line{margin-bottom:10px;}
+  .transport-col ul{margin-top:10px;}
+  .transport-col li{
+    font-size:0.87rem; color:var(--slate); padding-left:14px; position:relative; margin-bottom:6px;
+  }
+  .transport-col li::before{
+    content:""; position:absolute; left:0; top:9px; width:5px; height:5px; background:var(--accent); border-radius:1px;
+  }
+  .note-box{
+    background:rgba(30,42,56,0.05); border:1px solid var(--line); padding:18px 20px;
+    font-size:0.9rem; color:var(--ink-soft); margin-bottom:16px;
+  }
+  .note-box strong{color:var(--ink);}
+
+  /* ---------- ITINERARY TIMELINE ---------- */
+  .itinerary-block{margin-bottom:52px;}
+  .itinerary-block:last-child{margin-bottom:0;}
+  .itinerary-block h3{font-size:1.15rem; margin-bottom:6px;}
+  .itinerary-block .itin-sub{color:var(--slate); font-size:0.92rem; margin-bottom:24px; max-width:60ch;}
+  .timeline{position:relative; margin-top:10px;}
+  .tl-item{display:flex; gap:24px; position:relative; padding-bottom:32px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-time{
+    flex-shrink:0; width:64px; font-family:var(--font-display); font-weight:700;
+    color:var(--ember); font-size:1.05rem; position:relative; text-align:right;
+  }
+  .tl-rail{
+    flex-shrink:0; width:14px; display:flex; flex-direction:column; align-items:center;
+  }
+  .tl-dot{width:10px; height:10px; background:var(--ember); border-radius:50%; margin-top:4px;}
+  .tl-line{flex:1; width:1px; background:var(--line); margin-top:4px;}
+  .tl-item:last-child .tl-line{display:none;}
+  .tl-text{flex:1; padding-top:0;}
+  .tl-text h4{font-size:1rem; font-weight:700; margin-bottom:4px; font-family:var(--font-body);}
+  .tl-text p{color:var(--slate); font-size:0.92rem;}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:44px 0 60px; }
+  footer .wrap{color:var(--slate); font-size:0.84rem; display:flex; flex-direction:column; gap:6px;}
+  footer .sign{color:var(--ink); font-weight:700; font-family:var(--font-display); margin-top:8px;}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:760px){
+    .hero-stats{flex-direction:column; gap:18px;}
+    .hero-stats div{border-right:none; margin-right:0; padding-right:0;}
+    .transport-grid{grid-template-columns:1fr; gap:22px;}
+    .transport-col, .transport-col + .transport-col{padding-left:0;}
+    .frontback{grid-template-columns:1fr;}
+    .frontback div:first-child{border-right:none; border-bottom:1px solid var(--line);}
+    .spot{padding-left:16px; gap:0;}
+    .section{padding:56px 0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- shared icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="icon-pin" viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21s-7-6.4-7-11.5A7 7 0 0 1 19 9.5C19 14.6 12 21 12 21z"/>
+    <circle cx="12" cy="9.5" r="2.3"/>
+  </symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.5"/>
+    <path d="M12 7.5V12l3 2"/>
+  </symbol>
+  <symbol id="icon-ticket" viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a1.6 1.6 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a1.6 1.6 0 0 0 0-4V9z"/>
+    <path d="M9 7v10" stroke-dasharray="2 2.4"/>
+  </symbol>
+  <symbol id="icon-route" viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="5" cy="18" r="2"/>
+    <circle cx="19" cy="6" r="2"/>
+    <path d="M6.4 16.6 17.6 7.4" stroke-dasharray="2.2 2.6"/>
+  </symbol>
+</svg>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <div class="brand">中壢旅遊指南<small>ZHONGLI TRAVEL GUIDE</small></div>
+    <div class="nav-links">
+      <a href="#station">交通指南</a>
+      <a href="#play">好玩景點</a>
+      <a href="#eat">好吃美食</a>
+      <a href="#shop">好逛商圈</a>
+      <a href="#itinerary">建議路線</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>中壢，桃園最熱鬧的十字路口</h1>
+    <p class="hero-sub">從老街溪畔的日式老屋，到華燈初上的新明夜市，台鐵、高鐵、機場捷運在這裡交會。這篇指南以中壢火車站為起點，每一站都附上從這裡出發要走多久、搭什麼車——現在，讓我們從剪票口走出去，一步步逛遍它。</p>
+    <div class="hero-stats">
+      <div><strong class="n1">500+</strong><span>攤中壢觀光夜市小吃</span></div>
+      <div><strong class="n2">285</strong><span>個品牌進駐華泰名品城</span></div>
+      <div><strong class="n3">3</strong><span>種軌道運輸抵達（台鐵・高鐵・機捷）</span></div>
+    </div>
+
+    <svg class="skyline" viewBox="0 0 1200 170" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="0" y1="140" x2="1200" y2="140" stroke="rgba(251,242,222,0.18)" stroke-width="1"/>
+      <g stroke="rgba(251,242,222,0.25)" stroke-width="1">
+        <line x1="90" y1="20" x2="90" y2="46"/>
+        <line x1="150" y1="20" x2="150" y2="58"/>
+        <line x1="210" y1="20" x2="210" y2="40"/>
+        <line x1="270" y1="20" x2="270" y2="52"/>
+      </g>
+      <ellipse cx="90" cy="58" rx="13" ry="16" fill="#D9481F"/>
+      <ellipse cx="150" cy="72" rx="16" ry="20" fill="#E8A23F"/>
+      <ellipse cx="210" cy="52" rx="11" ry="14" fill="#D9481F"/>
+      <ellipse cx="270" cy="66" rx="14" ry="17" fill="#E8A23F"/>
+      <g fill="none" stroke="rgba(251,242,222,0.55)" stroke-width="1.6" stroke-linejoin="round">
+        <rect x="360" y="96" width="150" height="42" rx="6"/>
+        <line x1="360" y1="116" x2="510" y2="116"/>
+        <rect x="374" y="102" width="26" height="14" rx="2"/>
+        <rect x="410" y="102" width="26" height="14" rx="2"/>
+        <rect x="446" y="102" width="26" height="14" rx="2"/>
+      </g>
+      <circle cx="382" cy="140" r="6" fill="rgba(251,242,222,0.4)"/>
+      <circle cx="420" cy="140" r="6" fill="rgba(251,242,222,0.4)"/>
+      <circle cx="458" cy="140" r="6" fill="rgba(251,242,222,0.4)"/>
+      <circle cx="494" cy="140" r="6" fill="rgba(251,242,222,0.4)"/>
+      <g fill="rgba(111,168,147,0.55)">
+        <rect x="640" y="70" width="60" height="70"/>
+        <rect x="708" y="40" width="46" height="100"/>
+        <rect x="762" y="88" width="70" height="52"/>
+        <rect x="842" y="20" width="40" height="120"/>
+        <rect x="892" y="60" width="80" height="80"/>
+        <rect x="984" y="96" width="50" height="44"/>
+        <rect x="1044" y="50" width="38" height="90"/>
+        <rect x="1092" y="80" width="60" height="60"/>
+      </g>
+      <g fill="rgba(30,42,56,0.35)">
+        <rect x="718" y="54" width="8" height="8"/>
+        <rect x="734" y="54" width="8" height="8"/>
+        <rect x="718" y="72" width="8" height="8"/>
+        <rect x="734" y="72" width="8" height="8"/>
+        <rect x="850" y="36" width="8" height="8"/>
+        <rect x="864" y="36" width="8" height="8"/>
+        <rect x="850" y="56" width="8" height="8"/>
+        <rect x="864" y="56" width="8" height="8"/>
+        <rect x="905" y="76" width="9" height="9"/>
+        <rect x="922" y="76" width="9" height="9"/>
+        <rect x="905" y="96" width="9" height="9"/>
+        <rect x="922" y="96" width="9" height="9"/>
+      </g>
+    </svg>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= 交通指南／中壢火車站 ================= -->
+  <section class="section" id="station">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-tag"><span class="dot"></span>交通指南</div>
+        <h2>先認識中壢火車站，再出發</h2>
+        <p>中壢火車站是這篇指南的原點——底下每個景點都標了「距離中壢火車站」的步行或搭車時間，抓的是大致範圍，實際會因人潮、紅綠燈略有出入，出發前不妨用地圖再確認一次。目前車站正在進行地下化改建，暫時使用臨時站體。</p>
+      </div>
+
+      <div class="frontback">
+        <div>
+          <h4>前站（西側）</h4>
+          <p>出站就是中正路與熱鬧的中平商圈，中平路故事館、壢景町、老街溪步道都在這一側，用走的就能到，是老城散步的起點。</p>
+        </div>
+        <div>
+          <h4>後站（東側）</h4>
+          <p>桃園客運、中壢客運的公車總站在這一側，是搭公車前往中央大學、元智大學，或轉乘機場捷運、前往高鐵桃園站方向的起點。</p>
+        </div>
+      </div>
+
+      <p class="map-intro">下面這張地圖以中壢火車站（黑色星號）為中心，把整篇指南提到的景點都標了上去——聚在車站附近的一圈是走路就能到的老城區，右上角那一小群明顯拉開距離的，就是需要另外搭車的高鐵／青埔特區。點一下圖釘可以看到名稱和大致距離。</p>
+      <div class="map-wrap is-loading" id="map-wrap">
+        <div id="zhongli-map"></div>
+      </div>
+      <div class="map-legend">
+        <span><i class="dot station"></i>中壢火車站</span>
+        <span><i class="dot play"></i>好玩景點</span>
+        <span><i class="dot eat"></i>好吃美食</span>
+        <span><i class="dot shop"></i>好逛商圈</span>
+      </div>
+
+      <div class="transport-grid">
+        <div class="transport-col">
+          <h3>台鐵</h3>
+          <p class="station-line" style="color:var(--slate); font-size:0.88rem;">中壢站（本站）・內壢站</p>
+          <p style="color:var(--slate); font-size:0.87rem;">適合前往：</p>
+          <ul>
+            <li>中平商圈・故事館群</li>
+            <li>中壢觀光夜市</li>
+            <li>中壢SOGO・六和商圈</li>
+          </ul>
+        </div>
+        <div class="transport-col">
+          <h3>高鐵 + 機場捷運</h3>
+          <p class="station-line" style="color:var(--slate); font-size:0.88rem;"><span class="station-badge" style="background:var(--ink-soft)">A18</span> 高鐵桃園站</p>
+          <p style="color:var(--slate); font-size:0.87rem;">適合前往：</p>
+          <ul>
+            <li>Xpark水族館</li>
+            <li>桃園市兒童美術館</li>
+            <li>華泰名品城・環球購物中心</li>
+          </ul>
+        </div>
+        <div class="transport-col">
+          <h3>機場捷運</h3>
+          <p class="station-line" style="color:var(--slate); font-size:0.88rem;"><span class="station-badge" style="background:var(--ink-soft)">A21</span> 環北站・<span class="station-badge" style="background:var(--ink-soft)">A22</span> 老街溪站</p>
+          <p style="color:var(--slate); font-size:0.87rem;">適合前往：</p>
+          <ul>
+            <li>老街溪環堤步道</li>
+            <li>SOGO・六和商圈</li>
+            <li>新明夜市周邊</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>提醒：</strong>與台鐵中壢站共站、可直達的機場捷運A23中壢站仍在興建中，預計2029年後才會通車，目前機捷延伸段最南只到A22老街溪站。也就是說，從中壢火車站前往Xpark、兒童美術館、華泰名品城這一類「高鐵／青埔特區」景點，暫時沒有一車到底的鐵路可搭。
+      </div>
+      <div class="note-box">
+        <strong>建議做法：</strong>火車站與高鐵／青埔特區之間，可以在中壢火車站前搭乘170號「高鐵快捷公車」直達高鐵桃園站（約20–30分鐘一班，車程約20分鐘），下車後再步行前往Xpark、兒童美術館或華泰名品城（或計程車，車程約20–25分鐘，車資抓300–400元）；也可以先搭公車到A21環北站或A22老街溪站，再轉乘機場捷運到A18高鐵桃園站，但這段轉乘班次較少、較花時間。安排行程時，建議把「火車站老城區」和「高鐵／青埔特區」分成兩個半天，別在同一天來回奔波。
+      </div>
+      <div class="note-box">
+        <strong>公車：</strong>桃園客運、中壢客運在後站均設有總站，132、133、172等路線可通往中央大學、元智大學方向，密集程度足以應付大部分景點的最後一哩路，用Google地圖搜尋站名即可查即時班次。
+      </div>
+      <div class="note-box">
+        <strong>開車：</strong>國道1號、國道2號皆有交流道可下中壢，各大商場多附設停車場（如華泰名品城消費可折抵停車費）。
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 好玩景點 ================= -->
+  <section class="section" id="play">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-tag"><span class="dot"></span>好玩景點</div>
+        <h2>從火車站步行圈，走到高鐵特區</h2>
+        <p>從前站出發，先逛完老城區的日式故事館，再視體力決定要不要搭車去高鐵那一側的親子景點——以下由近到遠排列。</p>
+      </div>
+
+      <div class="subgroup-intro">
+        <strong>中壢城市故事館群：老城三館，走路就能串起來</strong>
+        壢景町、中平路故事館、壢小故事森林是桃園市政府文化局合稱的「中壢城市故事館群」，都是日治時期留下的老建築修復而成，三館彼此步行只要幾分鐘，很適合排成同一趟散步路線。
+      </div>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>壢景町</h3>
+            <span class="tag tag-jade">免費・日式老屋</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約5分鐘（前站出站沿建國路轉中和路，就在左手邊）</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E5%BB%B6%E5%B9%B3%E8%B7%AF627%E8%99%9F" target="_blank" rel="noopener">中壢區延平路627號</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週二至週日 11:00–14:00、17:00–20:00（週一休館，各棟時間略有不同，建議行前再次確認）</span></li>
+          </ul>
+          <p class="desc">原為日治時期警察宿舍，也是1977年「中壢事件」的舊址所在，三棟老屋現在改為展覽與輕食空間，是認識中壢老城歷史的第一站。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>中平路故事館</h3>
+            <span class="tag tag-jade">日式雙拼建築・客家文化</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約3–5分鐘（就在中平商圈範圍內）</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E5%BE%A9%E8%88%88%E8%B7%AF99%E8%99%9F" target="_blank" rel="noopener">中壢區復興路99號</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週二至週日 10:00–17:00（週一休館）</span></li>
+          </ul>
+          <p class="desc">日式雙拼宿舍改建的客家文化展館，館內不定期推出酸柑茶等「客味茶席」體驗，是中平商圈逛累了可以歇腳的地方。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>壢小故事森林</h3>
+            <span class="tag tag-jade">日式宿舍群・繪本館</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約8分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E5%8D%9A%E6%84%9B%E8%B7%AF52%E8%99%9F" target="_blank" rel="noopener">中壢區博愛路52號</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週二至週日 10:00–17:00（週一休館）</span></li>
+          </ul>
+          <p class="desc">前身是中壢公學校（今中壢國小）的教職員宿舍，百年木造建築群修復後分成展示、繪本、餐飲三棟，榻榻米配木拉門的場景怎麼拍都好看，很適合帶小孩一起窩著看書。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>老街溪河川教育中心・環堤步道</h3>
+            <span class="tag tag-jade">免費・生態步道</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約10分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E8%80%81%E8%A1%97%E6%BA%AA%E6%B2%B3%E5%B7%9D%E6%95%99%E8%82%B2%E4%B8%AD%E5%BF%83%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80" target="_blank" rel="noopener">中壢區延平路一帶，鄰近老街溪畔</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>教育中心：週二至週日 09:00–17:00（週一休館）；戶外步道全天開放</span></li>
+          </ul>
+          <p class="desc">整治後的老街溪成了中壢人的日常公園，沿著水岸步道能看到親水平台與生態浮島，傍晚常有人在這裡散步、遛狗，是最貼近中壢生活步調的角落。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>六和兒童公園</h3>
+            <span class="tag tag-jade">免費・親子公園</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約1公里，步行約12–15分鐘，或搭公車／YouBike約8分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E5%85%AD%E5%92%8C%E5%85%92%E7%AB%A5%E5%85%AC%E5%9C%92%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E4%B9%9D%E5%92%8C%E4%B8%89%E8%A1%9715%E8%99%9F" target="_blank" rel="noopener">中壢區九和三街15號，鄰近中壢SOGO</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>全天開放；水舞噴泉每日16:00–21:00</span></li>
+          </ul>
+          <p class="desc">市中心少見的水舞公園，夏天傍晚燈光配著音樂噴水，小朋友常玩到不想回家。逛完SOGO順路就能過來放電。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>Xpark 水族館</h3>
+            <span class="tag tag-far">需轉乘・高鐵特區</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約10公里，無直達鐵路，可在火車站前搭170號高鐵快捷公車至高鐵桃園站（約20–30分鐘一班，車程約20分鐘），再步行約10–15分鐘至Xpark（或計程車，約20–25分鐘，車資約300–400元）</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A18</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=Xpark%E6%B0%B4%E6%97%8F%E9%A4%A8%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E6%98%A5%E5%BE%B7%E8%B7%AF105%E8%99%9F" target="_blank" rel="noopener">中壢區春德路105號，鄰近高鐵桃園站</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週日至週五 10:00–18:00・週六 10:00–20:00</span></li>
+            <li><svg><use href="#icon-ticket"/></svg><span>全票600元・學生430元・孩童270元（4歲以下免費）</span></li>
+          </ul>
+          <p class="desc">都會型水族館，落地大水缸裡的銀鱗鯧魚群、癒見水母的鏡面展區、企鵝奇遇都是必拍場景。同棟樓還有新光影城和購物中心，下雨天也能玩上一整天，建議先線上購票避開現場排隊。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>桃園市兒童美術館</h3>
+            <span class="tag tag-far">需轉乘・高鐵特區</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：同Xpark路線，建議安排在同一趟</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A18</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E5%85%92%E7%AB%A5%E7%BE%8E%E8%A1%93%E9%A4%A8%20%E4%B8%AD%E5%A3%A2%E5%8D%80%E9%AB%98%E9%90%B5%E5%8D%97%E8%B7%AF%E4%BA%8C%E6%AE%B590%E8%99%9F" target="_blank" rel="noopener">中壢區高鐵南路二段90號</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週三至週一 09:30–17:00（週二休館）</span></li>
+            <li><svg><use href="#icon-ticket"/></svg><span>100元（18歲以下、65歲以上免費）</span></li>
+          </ul>
+          <p class="desc">山丘造型的白色建築由普立茲克建築獎得主山本理顯操刀，緊鄰青塘園，屋頂Z字形步道能眺望整片綠地。三樓的兒童藝術圖書館很適合帶小孩窩一個下午。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 好吃美食 ================= -->
+  <section class="section" id="eat">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-tag"><span class="dot"></span>好吃美食</div>
+        <h2>從車站前的小吃，吃到郊區的火鍋</h2>
+        <p>白天靠中原夜市的學生味蕾撐場，晚上換新明路的老字號攤販接棒——中壢人的一天，幾乎都是被夜市餵飽的。</p>
+      </div>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>大象泰式美術館</h3>
+            <span class="tag tag-ember">泰式料理</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約3分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E8%B1%A1%E6%B3%B0%E5%BC%8F%E7%BE%8E%E8%A1%93%E9%A4%A8%20%E4%B8%AD%E5%A3%A2%E7%81%AB%E8%BB%8A%E7%AB%99%E5%85%83%E5%8C%96%E8%B7%AF" target="_blank" rel="noopener">中壢火車站前元化路上</a></span></li>
+          </ul>
+          <p class="desc">一樓單點泰式菜色、二樓泰式火鍋燒烤吃到飽二選一，泰式裝潢做得很足，是車站周邊聚餐的熱門選擇。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>我們。他們 咖啡廳</h3>
+            <span class="tag tag-ember">寵物友善・老宅咖啡</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：步行約12分鐘（老街溪步道旁）</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%88%91%E5%80%91%E3%80%82%E4%BB%96%E5%80%91%E5%92%96%E5%95%A1%E5%BB%B3%20%E4%B8%AD%E5%A3%A2%E8%80%81%E8%A1%97%E6%BA%AA" target="_blank" rel="noopener">中壢老街溪步道旁</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>13:30–21:00</span></li>
+          </ul>
+          <p class="desc">木質調老宅改造的一層樓咖啡廳，主打動物保育與友善環境，後院常有店家養的貓咪陪你喝下午茶。</p>
+        </div>
+      </article>
+
+      <div class="feature">
+        <div class="spot-head">
+          <h3>中壢（新明）觀光夜市</h3>
+          <span class="tag tag-ember">每日營業・約500攤</span>
+        </div>
+        <ul class="spot-meta">
+          <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約1.5公里，步行約20分鐘，或搭公車／YouBike約8–10分鐘，計程車約100元</span></li>
+          <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A22</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%AD%E5%A3%A2%E8%A7%80%E5%85%89%E5%A4%9C%E5%B8%82%20%E6%96%B0%E6%98%8E%E8%B7%AF%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80" target="_blank" rel="noopener">中壢區新明路（中央西路口至民權路口）</a></span></li>
+          <li><svg><use href="#icon-clock"/></svg><span>17:00–00:00（各攤營業時間略有不同）</span></li>
+        </ul>
+        <p class="desc">1990年起營業的老字號夜市，全長約700公尺，是中壢人心中真正的深夜食堂，其中「混蛋爆蝦」還拿過桃園市政府飲食類金食獎。</p>
+        <div class="menu-list">
+          <span>石頭燒餅</span><span>混蛋爆蝦</span><span>簡師傅麻辣臭豆腐</span><span>瑞記排骨酥</span><span>小馬檳城炒粿條</span>
+        </div>
+      </div>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>友竹居茶藝館</h3>
+            <span class="tag tag-far">需搭車・中央大學方向</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約6公里，建議搭公車（132、133路往中央大學方向）約20分鐘，或計程車約200–250元</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E4%B8%AD%E5%A4%A7%E8%B7%AF32%E8%99%9F" target="_blank" rel="noopener">中壢區中大路32號，中央大學校門口附近</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>10:00–22:00（實際時段依店家公告為準）</span></li>
+          </ul>
+          <p class="desc">仿江南園林建築的茶藝館，庭院造景很有小江南的意境，備有免費停車場，假日常一位難求，建議先電話預約。</p>
+        </div>
+      </article>
+
+      <div class="feature">
+        <div class="spot-head">
+          <h3>中原夜市</h3>
+          <span class="tag tag-ember">學生商圈・宵夜場</span>
+        </div>
+        <ul class="spot-meta">
+          <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約3公里，建議搭公車或計程車約15分鐘</span></li>
+          <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%AD%E5%8E%9F%E5%A4%9C%E5%B8%82%20%E5%AF%A6%E8%B8%90%E8%B7%AF%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80" target="_blank" rel="noopener">中原大學周邊實踐路、日新路、柏德美食廣場一帶</a></span></li>
+          <li><svg><use href="#icon-clock"/></svg><span>多數攤位傍晚後營業，部分至凌晨</span></li>
+        </ul>
+        <p class="desc">中原大學旁的校園夜市，價格親民、翻桌快，很多店家配合學生作息開店，越晚越熱鬧。</p>
+        <div class="menu-list">
+          <span>彭春妹麻糬</span><span>手工烤布蕾</span><span>平價火鍋燒肉</span>
+        </div>
+      </div>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>売鍋 中壢龍岡店</h3>
+            <span class="tag tag-far">需搭車・龍岡地區</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：較遠，建議計程車或開車約15–20分鐘</span></li>
+          </ul>
+          <p class="desc">328元即可享用自助餐檯數十種食材吃到飽，青菜肉品應有盡有，距離忠貞新村文化園區不遠，是學生和小資族的口袋名單。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 好逛商圈 ================= -->
+  <section class="section" id="shop">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-tag"><span class="dot"></span>好逛商圈</div>
+        <h2>從站前徒步街，逛到高鐵旁的Outlet</h2>
+        <p>火車站前站出站就是中平商圈負責「過日子」；想買精品，得再轉車到高鐵旁的華泰名品城「買好貨」。</p>
+      </div>
+
+      <div class="feature">
+        <div class="spot-head">
+          <h3>中平商圈</h3>
+          <span class="tag tag-gold">老街風情・中壢的西門町</span>
+        </div>
+        <ul class="spot-meta">
+          <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：前站出站步行約1分鐘即達</span></li>
+          <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%AD%E5%B9%B3%E8%B7%AF%E5%95%86%E5%9C%88%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E4%B8%AD%E5%B9%B3%E8%B7%AF" target="_blank" rel="noopener">中壢區中平路一帶</a></span></li>
+        </ul>
+        <p class="desc">全長近700公尺的徒步商圈，以中平路為核心，串聯中正路、復興路、延平路、大同路、建國路等街道，號稱中壢的西門町。從流行服飾、精品配件到平價小吃，數百家店面擠在這幾條街裡，鄰近的中平路故事館更添了幾分人文歷史味。</p>
+        <div class="menu-list">
+          <span>流行服飾</span><span>平價小吃</span><span>東南亞商店</span><span>中平路故事館</span>
+        </div>
+      </div>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>中壢SOGO百貨</h3>
+            <span class="tag tag-gold">老牌百貨</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約1公里，步行約12–15分鐘，或搭公車／YouBike約8分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A21</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E9%81%A0%E6%9D%B1SOGO%E4%B8%AD%E5%A3%A2%E5%BA%97%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E5%85%83%E5%8C%96%E8%B7%AF" target="_blank" rel="noopener">中壢區元化路，鄰近環北站</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>約11:00–21:30（假日常延長至22:00）</span></li>
+          </ul>
+          <p class="desc">中壢人從小逛到大的百貨公司，緊鄰六和兒童公園，逛街順便帶小孩放電很方便。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>大江購物中心</h3>
+            <span class="tag tag-far">需搭車・影城・美食街</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約5公里（中原路方向，偏高鐵/青埔一側），建議搭公車或計程車約15分鐘</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E6%B1%9F%E5%9C%8B%E9%9A%9B%E8%B3%BC%E7%89%A9%E4%B8%AD%E5%BF%83%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E4%B8%AD%E5%8E%9F%E8%B7%AF%E4%BA%8C%E6%AE%B5501%E8%99%9F" target="_blank" rel="noopener">中壢區中原路二段501號</a></span></li>
+          </ul>
+          <p class="desc">中壢的老牌購物中心，全館汽機車免費停車，餐飲品牌眾多，是在地人假日聚餐的首選之一，逢年節常有大型主題造景。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>環球購物中心 Global Mall A19</h3>
+            <span class="tag tag-far">需轉乘・高鐵特區</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：同Xpark路線，建議與高鐵特區行程安排在一起</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A19</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=Global%20Mall%E7%92%B0%E7%90%83%E8%B3%BC%E7%89%A9%E4%B8%AD%E5%BF%83%20A19%20%E6%A1%83%E5%9C%92%E9%AB%94%E8%82%B2%E5%9C%92%E5%8D%80%E7%AB%99" target="_blank" rel="noopener">桃園體育園區站周邊</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>11:00–22:00</span></li>
+          </ul>
+          <p class="desc">鄰近機捷站，逛累了可以直接搭機捷回程，適合安排在高鐵特區行程的最後一站。</p>
+        </div>
+      </article>
+
+      <article class="spot">
+        <div class="spot-body">
+          <div class="spot-head">
+            <h3>華泰名品城 GLORIA OUTLETS</h3>
+            <span class="tag tag-far">需轉乘・約285個品牌</span>
+          </div>
+          <ul class="spot-meta">
+            <li class="route"><svg><use href="#icon-route"/></svg><span>距離中壢火車站：約10公里，無直達鐵路，可在火車站前搭170號高鐵快捷公車至高鐵桃園站（約20–30分鐘一班，車程約20分鐘），再步行約10–15分鐘至華泰名品城（或計程車，約20–25分鐘）</span></li>
+            <li><svg><use href="#icon-pin"/></svg><span><span class="station-badge">A18</span><a class="addr-link" href="https://www.google.com/maps/search/?api=1&query=%E8%8F%AF%E6%B3%B0%E5%90%8D%E5%93%81%E5%9F%8E%20%E6%A1%83%E5%9C%92%E5%B8%82%E4%B8%AD%E5%A3%A2%E5%8D%80%E6%98%A5%E5%BE%B7%E8%B7%AF189%E8%99%9F" target="_blank" rel="noopener">中壢區春德路189號</a></span></li>
+            <li><svg><use href="#icon-clock"/></svg><span>週一至週四 11:00–21:00・週五至週日 11:00–22:00</span></li>
+          </ul>
+          <p class="desc">全區分三期，國際精品、戶外機能、家居家電品牌齊全，逢年過節常有大型造景（唐人街、聖誕市集）。消費滿額可折抵停車費，會員平日停車前3小時免費。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 建議路線 ================= -->
+  <section class="section" id="itinerary" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-tag"><span class="dot"></span>建議路線</div>
+        <h2>兩種玩法，看你想不想長途轉乘</h2>
+        <p>因為火車站老城區和高鐵青埔特區之間目前沒有直達鐵路，這裡準備了兩套方案：一套是老城區慢走半日遊，全程用走的；一套是安排整天、含長途接駁的完整版。</p>
+      </div>
+
+      <div class="itinerary-block">
+        <h3>方案A：老城區慢走半日遊（免長途接駁，全程步行可達）</h3>
+        <p class="itin-sub">從中壢火車站前站出發，走一圈老城故事館與老街溪，中午前後結束，很適合半天的空檔。</p>
+        <div class="hours-note"><strong>開店時間提醒：</strong>中平商圈多數店家要10:00後才陸續開門，中平路故事館與壢小故事森林皆為10:00開館、壢景町則約11:00才開放，三館週一都休館，以下時間已把這些開店與休館時間算進去，建議避開週一造訪。</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-time">09:30</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>中壢火車站前站出發，先吃在地早餐</h4>
+              <p>這個時間中平商圈店家大多還沒開，先在站前找間豆漿店或早餐店墊墊肚子，順便看看老街清晨的樣子。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">10:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>中平商圈開始營業，順道走進中平路故事館喝碗酸柑茶</h4>
+              <p>店家陸續拉開鐵門，故事館也剛好開館，日式雙拼建築配客家茶席，是很好的暖身站。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">10:40</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>壢小故事森林，逛繪本館拍日式建築</h4>
+              <p>榻榻米與木拉門很好拍，也適合帶小孩坐下來看書。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">11:10</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>壢景町，看老屋認識中壢事件</h4>
+              <p>壢景町平日約11點才開放，這個時間抵達剛剛好，順便了解這棟建築背後的歷史。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">12:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>大象泰式美術館午餐</h4>
+              <p>就在火車站前元化路上，走回來很順路。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">13:30</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>老街溪河川教育中心，沿河岸散步</h4>
+              <p>飯後散步剛剛好，運氣好還能看到生態浮島。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">15:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div></div>
+            <div class="tl-text">
+              <h4>六和兒童公園、中壢SOGO逛街收尾</h4>
+              <p>搭公車或走路過去都行，逛完再走回火車站剛剛好。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="itinerary-block">
+        <h3>方案B：青埔＋老城一日順遊（含長途接駁，建議整天安排）</h3>
+        <p class="itin-sub">先把需要長途接駁的高鐵特區排在白天，傍晚再回到火車站周邊收尾，避免當天來回奔波。</p>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-time">09:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>中壢火車站前搭170號高鐵快捷公車，前往高鐵桃園站（A18）</h4>
+              <p>班距約20–30分鐘一班，車程約20分鐘（或計程車，約20–25分鐘）。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">09:30</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>步行約15分鐘到桃園市兒童美術館，剛好開館</h4>
+              <p>建築本身就很好拍，早一點抵達人潮也比較少。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">11:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>Xpark 水族館（建議停留2–3小時）</h4>
+              <p>先線上購票，避開現場排隊，中午前入場人潮較少。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">13:30</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>華泰名品城午餐＋Outlet逛街</h4>
+              <p>餐廳選擇多，也可以順手把折扣季的採購清單解決掉。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">16:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>搭170號高鐵快捷公車回中壢火車站商圈方向</h4>
+              <p>一樣在高鐵桃園站5號月台候車，班距20–30分鐘一班，建議提早出發卡位（或計程車，尖峰時段車輛較不好等）。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">17:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-text">
+              <h4>回到火車站，逛中平商圈、中壢SOGO</h4>
+              <p>順路買點日常用品，感受一下在地人下班後的生活步調。</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">19:00</div>
+            <div class="tl-rail"><div class="tl-dot"></div></div>
+            <div class="tl-text">
+              <h4>中壢觀光夜市晚餐收尾</h4>
+              <p>石頭燒餅、混蛋爆蝦、麻辣臭豆腐通通吃一輪，再帶點龍鬚糖回家。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>頁面內容整理自公開旅遊資訊、店家公告與桃園市政府觀光旅遊局資料，實際營業時間、票價與交通狀況請以店家或官方公告為準。</p>
+    <p>最後更新：2026年9月</p>
+    <p class="sign">中壢旅遊服務中心 © David Tang</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var mapEl = document.getElementById('zhongli-map');
+  var wrap = document.getElementById('map-wrap');
+  if(!mapEl || typeof L === 'undefined') return;
+
+  var station = { name:'中壢火車站', lat:24.9534, lng:121.2250 };
+
+  var places = [
+    { name:'壢景町', cat:'play', lat:24.9536, lng:121.2221, note:'步行約5分鐘' },
+    { name:'中平路故事館・中平商圈', cat:'play', lat:24.9554, lng:121.2244, note:'步行約3–5分鐘' },
+    { name:'壢小故事森林', cat:'play', lat:24.9538, lng:121.2204, note:'步行約8分鐘' },
+    { name:'老街溪河川教育中心', cat:'play', lat:24.9538, lng:121.2179, note:'步行約10分鐘' },
+    { name:'六和兒童公園', cat:'play', lat:24.9634, lng:121.2245, note:'約1公里，步行12–15分鐘' },
+    { name:'Xpark 水族館', cat:'play', lat:25.0173, lng:121.2142, note:'約10公里，需搭170號公車或計程車' },
+    { name:'桃園市兒童美術館', cat:'play', lat:25.0051, lng:121.2062, note:'約10公里，同Xpark方向' },
+    { name:'大象泰式美術館', cat:'eat', lat:24.9546, lng:121.2262, note:'步行約3分鐘' },
+    { name:'我們。他們 咖啡廳', cat:'eat', lat:24.9544, lng:121.2176, note:'步行約12分鐘' },
+    { name:'中壢觀光夜市（新明夜市）', cat:'eat', lat:24.9619, lng:121.2166, note:'約1.5公里，步行20分鐘或公車8–10分鐘' },
+    { name:'友竹居茶藝館', cat:'eat', lat:24.9684, lng:121.2014, note:'約6公里，建議公車或計程車' },
+    { name:'中原夜市', cat:'eat', lat:24.9556, lng:121.2406, note:'約3公里，建議公車或計程車' },
+    { name:'中壢SOGO百貨', cat:'shop', lat:24.9625, lng:121.2236, note:'約1公里，步行12–15分鐘' },
+    { name:'大江購物中心', cat:'shop', lat:25.0010, lng:121.2287, note:'約5公里，建議公車或計程車' },
+    { name:'環球購物中心 A19', cat:'shop', lat:25.0019, lng:121.2026, note:'約9公里，高鐵/青埔特區' },
+    { name:'華泰名品城', cat:'shop', lat:25.0141, lng:121.2132, note:'約10公里，需搭170號公車或計程車' }
+  ];
+
+  var catColor = { play:'#2F6F5E', eat:'#D9481F', shop:'#B8862A' };
+
+  try{
+    var map = L.map(mapEl, { scrollWheelZoom:false });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var bounds = [[station.lat, station.lng]];
+
+    var stationIcon = L.divIcon({
+      className: '',
+      html: '<div style="width:26px;height:26px;background:#1E2A38;border:3px solid #FBF2DE;border-radius:50%;box-shadow:0 0 0 2px #1E2A38, 0 2px 6px rgba(0,0,0,0.35);"></div>',
+      iconSize: [26,26],
+      iconAnchor: [13,13]
+    });
+    L.marker([station.lat, station.lng], { icon: stationIcon, zIndexOffset: 1000 })
+      .addTo(map)
+      .bindPopup('<strong>' + station.name + '</strong><br>這篇指南的起點');
+
+    places.forEach(function(p){
+      var color = catColor[p.cat] || '#1E2A38';
+      var icon = L.divIcon({
+        className: '',
+        html: '<div style="width:20px;height:20px;background:' + color + ';border:3px solid #FBF2DE;border-radius:50%;box-shadow:0 0 0 2px ' + color + ', 0 2px 5px rgba(0,0,0,0.3);"></div>',
+        iconSize: [20,20],
+        iconAnchor: [10,10]
+      });
+      L.marker([p.lat, p.lng], { icon: icon })
+        .addTo(map)
+        .bindPopup('<strong>' + p.name + '</strong><br>距中壢火車站：' + p.note);
+      bounds.push([p.lat, p.lng]);
+    });
+
+    map.fitBounds(bounds, { padding: [28, 28] });
+
+    map.on('click', function(){ map.scrollWheelZoom.enable(); });
+    mapEl.addEventListener('mouseleave', function(){ map.scrollWheelZoom.disable(); });
+
+    if(wrap) wrap.classList.remove('is-loading');
+  }catch(e){
+    if(wrap){ wrap.classList.remove('is-loading'); wrap.innerHTML = '<p style="padding:20px;color:#5B6472;font-size:0.9rem;">地圖載入失敗，請確認網路連線後重新整理頁面。</p>'; }
+  }
+})();
+</script>
+</body>
+</html>
